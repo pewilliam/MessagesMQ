@@ -33,6 +33,7 @@ public class Main {
         // Declara a fila para o usuário atual
         channel.queueDeclare(currentUser, false, false, false, null);
         Utils.safePrintln("\nLogado com sucesso!");
+        Utils.safePrint(">> ");
 
         MessageHandler messageHandler = new MessageHandler(channel, currentUser);
         CommandHandler commandHandler = new CommandHandler(channel, currentUser);
@@ -40,7 +41,6 @@ public class Main {
         messageHandler.startListening();
 
         while (true) {
-            Utils.safePrint(">> ");
             String input = sc.nextLine();
 
             if (input.toLowerCase().equals("sair")) {
