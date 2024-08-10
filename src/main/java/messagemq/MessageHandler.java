@@ -36,7 +36,7 @@ public class MessageHandler {
                 Utils.safePrintln(
                         "\n(" + msg.getData() + " às " + msg.getHora() + ") " + msg.getEmissor() + prefix + " diz: "
                                 + new String(msg.getConteudo().getCorpo().toByteArray(), StandardCharsets.UTF_8));
-                Utils.safePrint(Utils.getTarget().isEmpty() ? Utils.getGroup() : Utils.getTarget());
+                Utils.safePrint(Utils.getTarget().isEmpty() ? Utils.getGroup() + ">> " : Utils.getTarget() + ">> ");
             }
         };
 
