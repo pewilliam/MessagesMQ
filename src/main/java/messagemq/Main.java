@@ -12,9 +12,9 @@ public class Main {
 
     public static void main(String[] argv) throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
-        factory.setUsername("pedro");
-        factory.setPassword("pedrow");
+        factory.setHost("192.168.34.103");
+        factory.setUsername("peredo");
+        factory.setPassword("peredo");
         factory.setVirtualHost("/");
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();

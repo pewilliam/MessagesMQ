@@ -1,18 +1,20 @@
 package messagemq;
 
-import com.google.protobuf.ByteString;
-import com.rabbitmq.client.*;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.google.protobuf.ByteString;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
+
 public class MessageHandler {
     private Channel channel;
     private String currentUser;
-    private String target = "";
-    private String group = "";
 
     public MessageHandler(Channel channel, String currentUser) {
         this.channel = channel;
@@ -34,7 +36,7 @@ public class MessageHandler {
                 Utils.safePrintln(
                         "\n(" + msg.getData() + " às " + msg.getHora() + ") " + msg.getEmissor() + prefix + " diz: "
                                 + new String(msg.getConteudo().getCorpo().toByteArray(), StandardCharsets.UTF_8));
-                Utils.safePrint(target.isEmpty() ? group + ">> " : target + ">> ");
+                Utils.safePrint(Utils.getTarget().isEmpty() ? Utils.getGroup() : Utils.getTarget());
             }
         };
 
@@ -43,15 +45,15 @@ public class MessageHandler {
 
     public void handleMessage(String message) throws IOException {
         if (message.startsWith("@")) {
-            clearGroup();
-            setTarget(message);
-            Utils.safePrint(target);
+            Utils.clearGroup();
+            Utils.setTarget(message);
+            Utils.safePrint(Utils.getTarget());
         } else if (message.startsWith("#")) {
-            clearTarget();
-            setGroup(message);
-            Utils.safePrint(group);
+            Utils.clearTarget();
+            Utils.setGroup(message);
+            Utils.safePrint(Utils.getGroup());
         } else {
-            if (group.isEmpty() && target.isEmpty()) {
+            if (Utils.getTarget().isEmpty() && Utils.getGroup().isEmpty()) {
                 Utils.safePrintln("Por favor, defina um destinatário ou grupo usando @nome ou #grupo.");
                 return;
             }
@@ -60,7 +62,7 @@ public class MessageHandler {
                     .setData(new SimpleDateFormat("dd/MM/yyyy").format(new Date()))
                     .setHora(new SimpleDateFormat("HH:mm:ss").format(new Date()))
                     .setEmissor(currentUser)
-                    .setGrupo(group)
+                    .setGrupo(Utils.getGroup())
                     .setConteudo(MessageProto.Conteudo.newBuilder()
                             .setTipo("text/plain")
                             .setCorpo(ByteString.copyFrom(message.getBytes(StandardCharsets.UTF_8)))
@@ -68,29 +70,13 @@ public class MessageHandler {
 
             byte[] msgBytes = mensagem.build().toByteArray();
 
-            if (!group.isEmpty()) {
-                channel.basicPublish(group, "", null, msgBytes);
+            if (!Utils.getGroup().isEmpty()) {
+                channel.basicPublish(Utils.getGroup(), "", null, msgBytes);
             } else {
-                channel.basicPublish("", target, null, msgBytes);
+                channel.basicPublish("", Utils.getTarget(), null, msgBytes);
             }
 
-            Utils.safePrint(target.isEmpty() ? group : target);
+            Utils.safePrint(Utils.getTarget().isEmpty() ? Utils.getGroup() : Utils.getTarget());
         }
-    }
-
-    private void setTarget(String message) {
-        target = message.substring(1).trim();
-    }
-
-    private void clearTarget() {
-        target = "";
-    }
-
-    private void setGroup(String message) {
-        group = message.substring(1).trim();
-    }
-
-    private void clearGroup() {
-        group = "";
     }
 }
