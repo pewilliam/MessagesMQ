@@ -45,11 +45,11 @@ public class MessageHandler {
         if (message.startsWith("@")) {
             clearGroup();
             setTarget(message);
-            Utils.safePrint(target + ">> ");
+            Utils.safePrint(target);
         } else if (message.startsWith("#")) {
             clearTarget();
             setGroup(message);
-            Utils.safePrint(group + ">> ");
+            Utils.safePrint(group);
         } else {
             if (group.isEmpty() && target.isEmpty()) {
                 Utils.safePrintln("Por favor, defina um destinatário ou grupo usando @nome ou #grupo.");
@@ -74,7 +74,7 @@ public class MessageHandler {
                 channel.basicPublish("", target, null, msgBytes);
             }
 
-            Utils.safePrint(target.isEmpty() ? group + ">> " : target + ">> ");
+            Utils.safePrint(target.isEmpty() ? group : target);
         }
     }
 
