@@ -19,10 +19,9 @@ public class CommandHandler {
                 String groupName = command.split(" ")[1];
                 channel.exchangeDeclare(groupName, "fanout");
 
-                // Adiciona o próprio usuário ao grupo
                 channel.queueBind(currentUser, groupName, "");
                 Utils.safePrintln("Grupo '" + groupName + "' criado e você foi adicionado.");
-                Utils.safePrint(Utils.getTarget().isEmpty() ? Utils.getGroup() : Utils.getTarget());
+                Utils.printPrompt();
             } else if (command.startsWith("!addUser")) {
                 String[] parts = command.split(" ");
                 String user = parts[1];
@@ -30,7 +29,7 @@ public class CommandHandler {
 
                 channel.queueBind(user, groupName, "");
                 Utils.safePrintln("Usuário '" + user + "' foi adicionado ao grupo '" + groupName + "'.");
-                Utils.safePrint(Utils.getTarget().isEmpty() ? Utils.getGroup() : Utils.getTarget());
+                Utils.printPrompt();
             } else if (command.startsWith("!delFromGroup")) {
                 String[] parts = command.split(" ");
                 String user = parts[1];
@@ -38,15 +37,15 @@ public class CommandHandler {
 
                 channel.queueUnbind(user, groupName, "");
                 Utils.safePrintln("Usuário '" + user + "' foi removido do grupo '" + groupName + "'.");
-                Utils.safePrint(Utils.getTarget().isEmpty() ? Utils.getGroup() : Utils.getTarget());
+                Utils.printPrompt();
             } else if (command.startsWith("!removeGroup")) {
                 String groupName = command.split(" ")[1];
                 channel.exchangeDelete(groupName);
                 Utils.safePrintln("Grupo '" + groupName + "' foi removido.");
-                Utils.safePrint(Utils.getTarget().isEmpty() ? Utils.getGroup() : Utils.getTarget());
+                Utils.printPrompt();
             } else {
                 Utils.safePrintln("Comando não existe.");
-                Utils.safePrint(Utils.getTarget().isEmpty() ? Utils.getGroup() : Utils.getTarget());
+                Utils.printPrompt();
             }
         } catch (Exception e) {
             Utils.safePrintln("Erro ao executar o comando. Verifique se os parâmetros estão corretos.");

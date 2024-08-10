@@ -36,7 +36,7 @@ public class MessageHandler {
                 Utils.safePrintln(
                         "\n(" + msg.getData() + " às " + msg.getHora() + ") " + msg.getEmissor() + prefix + " diz: "
                                 + new String(msg.getConteudo().getCorpo().toByteArray(), StandardCharsets.UTF_8));
-                Utils.safePrint(Utils.getTarget().isEmpty() ? Utils.getGroup() + ">> " : Utils.getTarget() + ">> ");
+                Utils.printPrompt();
             }
         };
 
@@ -47,11 +47,11 @@ public class MessageHandler {
         if (message.startsWith("@")) {
             Utils.clearGroup();
             Utils.setTarget(message);
-            Utils.safePrint(Utils.getTarget());
+            Utils.printPrompt();
         } else if (message.startsWith("#")) {
             Utils.clearTarget();
             Utils.setGroup(message);
-            Utils.safePrint(Utils.getGroup());
+            Utils.printPrompt();
         } else {
             if (Utils.getTarget().isEmpty() && Utils.getGroup().isEmpty()) {
                 Utils.safePrintln("Por favor, defina um destinatário ou grupo usando @nome ou #grupo.");
@@ -76,7 +76,7 @@ public class MessageHandler {
                 channel.basicPublish("", Utils.getTarget(), null, msgBytes);
             }
 
-            Utils.safePrint(Utils.getTarget().isEmpty() ? Utils.getGroup() : Utils.getTarget());
+            Utils.printPrompt();
         }
     }
 }

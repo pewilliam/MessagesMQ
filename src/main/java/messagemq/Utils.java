@@ -44,4 +44,8 @@ public class Utils {
     public static void clearGroup() {
         group = "";
     }
+
+    public static void printPrompt() {
+        safePrint(getTarget().isEmpty() ? getGroup() + ">> " : getTarget() + ">> ");
+    }
 }
