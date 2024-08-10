@@ -55,6 +55,7 @@ public class MessageHandler {
         } else {
             if (Utils.getTarget().isEmpty() && Utils.getGroup().isEmpty()) {
                 Utils.safePrintln("Por favor, defina um destinatário ou grupo usando @nome ou #grupo.");
+                Utils.printPrompt();
                 return;
             }
 
