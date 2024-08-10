@@ -17,8 +17,8 @@ public class Main {
     public static void main(String[] argv) throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
-        factory.setUsername("pedro");
-        factory.setPassword("pedrow");
+        factory.setUsername("peredo");
+        factory.setPassword("peredo");
         factory.setVirtualHost("/");
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
@@ -46,16 +46,17 @@ public class Main {
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties,
                     byte[] body) throws IOException {
                 MessageProto.Mensagem msg = MessageProto.Mensagem.parseFrom(body);
-        
+
                 if (msg.getEmissor().equals(currentUser)) {
                     return;
                 }
-        
+
                 String prefix = msg.getGrupo().isEmpty() ? "" : "#" + msg.getGrupo();
-                safePrintln("\n(" + msg.getData() + " às " + msg.getHora() + ") " + msg.getEmissor() + prefix + " diz: " + new String(msg.getConteudo().getCorpo().toByteArray(), StandardCharsets.UTF_8));
+                safePrintln("\n(" + msg.getData() + " às " + msg.getHora() + ") " + msg.getEmissor() + prefix + " diz: "
+                        + new String(msg.getConteudo().getCorpo().toByteArray(), StandardCharsets.UTF_8));
                 safePrint(target.isEmpty() ? group + ">> " : target + ">> ");
             }
-        };        
+        };
 
         channel.basicConsume(currentUser, true, consumer);
 
@@ -65,13 +66,11 @@ public class Main {
 
             if (message.toLowerCase().equals("sair")) {
                 break;
-            }
-            else if(message.startsWith("!")){
+            } else if (message.startsWith("!")) {
                 commandTreatment(message, channel);
                 safePrint(">> ");
                 continue;
-            }
-            else{
+            } else {
                 messageTreatment(message, channel);
             }
         }
@@ -110,7 +109,7 @@ public class Main {
     }
 
     private static void messageTreatment(String message, Channel channel) throws IOException {
-        if(message.startsWith("@")){
+        if (message.startsWith("@")) {
             clearGroup();
             setTarget(message);
             safePrint(target + ">> ");
@@ -124,58 +123,63 @@ public class Main {
                 safePrint(">> ");
                 return;
             }
-    
+
             MessageProto.Mensagem.Builder mensagem = MessageProto.Mensagem.newBuilder()
-                .setData(new SimpleDateFormat("dd/MM/yyyy").format(new Date()))
-                .setHora(new SimpleDateFormat("HH:mm:ss").format(new Date()))
-                .setEmissor(currentUser)
-                .setGrupo(group)
-                .setConteudo(MessageProto.Conteudo.newBuilder()
-                    .setTipo("text/plain")
-                    .setCorpo(ByteString.copyFrom(message.getBytes(StandardCharsets.UTF_8)))  // Conversão do byte[] para ByteString
-                    .build());
-    
+                    .setData(new SimpleDateFormat("dd/MM/yyyy").format(new Date()))
+                    .setHora(new SimpleDateFormat("HH:mm:ss").format(new Date()))
+                    .setEmissor(currentUser)
+                    .setGrupo(group)
+                    .setConteudo(MessageProto.Conteudo.newBuilder()
+                            .setTipo("text/plain")
+                            .setCorpo(ByteString.copyFrom(message.getBytes(StandardCharsets.UTF_8))) // Conversão do
+                                                                                                     // byte[] para
+                                                                                                     // ByteString
+                            .build());
+
             byte[] msgBytes = mensagem.build().toByteArray();
-    
+
             if (!group.isEmpty()) {
                 channel.basicPublish(group, "", null, msgBytes);
             } else {
                 channel.basicPublish("", target, null, msgBytes);
             }
-    
+
             safePrint(target.isEmpty() ? group + ">> " : target + ">> ");
         }
     }
-    
 
     private static void commandTreatment(String message, Channel channel) throws IOException {
-        if (message.startsWith("!addGroup")) {
-            String groupName = message.split(" ")[1];
-            channel.exchangeDeclare(groupName, "fanout");
-    
-            // Adiciona o próprio usuário ao grupo
-            channel.queueBind(currentUser, groupName, "");
-            safePrintln("Grupo '" + groupName + "' criado e você foi adicionado.");
-        } else if (message.startsWith("!addUser")) {
-            String[] parts = message.split(" ");
-            String user = parts[1];
-            String groupName = parts[2];
-    
-            channel.queueBind(user, groupName, "");
-            safePrintln("Usuário '" + user + "' foi adicionado ao grupo '" + groupName + "'.");
-        } else if (message.startsWith("!delFromGroup")) {
-            String[] parts = message.split(" ");
-            String user = parts[1];
-            String groupName = parts[2];
-    
-            channel.queueUnbind(user, groupName, "");
-            safePrintln("Usuário '" + user + "' foi removido do grupo '" + groupName + "'.");
-        } else if (message.startsWith("!removeGroup")) {
-            String groupName = message.split(" ")[1];
-            channel.exchangeDelete(groupName);
-            safePrintln("Grupo '" + groupName + "' foi removido.");
-        } else {
-            safePrintln("Comando não existe.");
+        try {
+            if (message.startsWith("!addGroup")) {
+                String groupName = message.split(" ")[1];
+                channel.exchangeDeclare(groupName, "fanout");
+
+                // Adiciona o próprio usuário ao grupo
+                channel.queueBind(currentUser, groupName, "");
+                safePrintln("Grupo '" + groupName + "' criado e você foi adicionado.");
+            } else if (message.startsWith("!addUser")) {
+                String[] parts = message.split(" ");
+                String user = parts[1];
+                String groupName = parts[2];
+
+                channel.queueBind(user, groupName, "");
+                safePrintln("Usuário '" + user + "' foi adicionado ao grupo '" + groupName + "'.");
+            } else if (message.startsWith("!delFromGroup")) {
+                String[] parts = message.split(" ");
+                String user = parts[1];
+                String groupName = parts[2];
+
+                channel.queueUnbind(user, groupName, "");
+                safePrintln("Usuário '" + user + "' foi removido do grupo '" + groupName + "'.");
+            } else if (message.startsWith("!removeGroup")) {
+                String groupName = message.split(" ")[1];
+                channel.exchangeDelete(groupName);
+                safePrintln("Grupo '" + groupName + "' foi removido.");
+            } else {
+                safePrintln("Comando não existe.");
+            }
+        } catch (Exception e) {
+            safePrintln("Erro ao executar o comando. Verifique se os parâmetros estão corretos.");
         }
-    }    
+    }
 }
