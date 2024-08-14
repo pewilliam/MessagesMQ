@@ -78,7 +78,6 @@ public class Utils {
             }
             in.close();
 
-            // Parse the JSON response to get the list of users (queues)
             JSONArray bindings = new JSONArray(response.toString());
             List<String> users = new ArrayList<>();
             for (int i = 0; i < bindings.length(); i++) {
@@ -111,7 +110,6 @@ public class Utils {
             }
             in.close();
 
-            // Parse the JSON response to get the list of groups (exchanges)
             JSONArray bindings = new JSONArray(response.toString());
             List<String> groups = new ArrayList<>();
             for (int i = 0; i < bindings.length(); i++) {
