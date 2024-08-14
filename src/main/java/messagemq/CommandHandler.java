@@ -43,12 +43,20 @@ public class CommandHandler {
                 channel.exchangeDelete(groupName);
                 Utils.safePrintln("Grupo '" + groupName + "' foi removido.");
                 Utils.printPrompt();
+            } else if (command.startsWith("!listUsers")) {
+                String groupName = command.split(" ")[1];
+                Utils.listUsersInGroup(groupName);
+                Utils.printPrompt();
+            } else if (command.startsWith("!listGroups")) {
+                Utils.listGroups(currentUser);
+                Utils.printPrompt();
             } else {
                 Utils.safePrintln("Comando não existe.");
                 Utils.printPrompt();
             }
         } catch (Exception e) {
             Utils.safePrintln("Erro ao executar o comando. Verifique se os parâmetros estão corretos.");
+            Utils.printPrompt();
         }
     }
 }
