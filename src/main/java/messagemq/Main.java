@@ -47,8 +47,10 @@ public class Main {
                 break;
             } else if (input.startsWith("!")) {
                 commandHandler.handleCommand(input);
-            } else {
+            } else if (input.startsWith("@")) {
                 messageHandler.handleMessage(input);
+            } else {
+                Utils.safePrintln("Comando inválido.");
             }
         }
 
